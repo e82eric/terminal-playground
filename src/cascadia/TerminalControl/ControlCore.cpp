@@ -569,6 +569,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         {
             _markMovementNumber = (WORD)std::stoi(_markMovementStr);
             _markMovementStr = "";
+            return true;
         }
 
         if (_shouldTryUpdateSelection(vkey) && _terminal->SelectionMode() == ::Terminal::SelectionInteractionMode::Mark)

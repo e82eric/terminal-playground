@@ -243,7 +243,7 @@ void Terminal::SetSelectionEnd(const til::point viewportPos, std::optional<Selec
         // expand both anchors
         std::tie(_selection->start, _selection->end) = expandedAnchors;
     }
-    _selectionMode = SelectionInteractionMode::Mouse;
+    //_selectionMode = SelectionInteractionMode::Mouse;
     _selectionIsTargetingUrl = false;
 }
 
