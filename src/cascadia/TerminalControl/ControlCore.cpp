@@ -540,9 +540,15 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             return true;
         }
 
-        if (vkey == 0x4E)
+        if (vkey == 0x4E && (_isInMarkSearchMode || SelectionMode() == SelectionInteractionMode::Mark))
         {
             Search(_markSearchString, true, false);
+            return true;
+        }
+
+        if (vkey == VK_RETURN && _isInMarkSearchMode)
+        {
+            _isInMarkSearchMode = false;
             return true;
         }
 
