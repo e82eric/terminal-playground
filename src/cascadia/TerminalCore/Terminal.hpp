@@ -292,7 +292,7 @@ public:
     void SetSelectionAnchor(const til::point position);
     void SetSelectionEnd(const til::point position, std::optional<SelectionExpansion> newExpansionMode = std::nullopt);
     void SetBlockSelection(const bool isEnabled) noexcept;
-    void UpdateSelection(SelectionDirection direction, SelectionExpansion mode, ControlKeyStates mods);
+    void UpdateSelection(SelectionDirection direction, SelectionExpansion mode, ControlKeyStates mods, WORD vkey);
     void SelectAll();
     SelectionInteractionMode SelectionMode() const noexcept;
     void SwitchSelectionEndpoint() noexcept;

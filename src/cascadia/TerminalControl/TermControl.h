@@ -217,6 +217,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         bool _closing{ false };
         bool _focused{ false };
         bool _initializedTerminal{ false };
+        bool _modeFlag{ false };
 
         std::shared_ptr<ThrottledFuncLeading> _playWarningBell;
 

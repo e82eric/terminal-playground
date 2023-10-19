@@ -291,6 +291,10 @@ namespace winrt::Microsoft::Terminal::Control::implementation
 
         std::atomic<bool> _initializedTerminal{ false };
         bool _closing{ false };
+        WORD _markMovementNumber;
+        std::string _markMovementStr;
+        bool _isInMarkSearchMode{false};
+        winrt::hstring _markSearchString;
 
         TerminalConnection::ITerminalConnection _connection{ nullptr };
         TerminalConnection::ITerminalConnection::TerminalOutput_revoker _connectionOutputEventRevoker;
