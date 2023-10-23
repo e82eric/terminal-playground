@@ -495,6 +495,13 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         }
     }
 
+    void TermControl::_VimMode(bool enabled, winrt::Windows::System::VirtualKey key)
+    {
+        _core.ToggleMarkMode2();
+        _core.TryMarkModeKeybinding((int16_t)key, _GetPressedModifierKeys());
+        UNREFERENCED_PARAMETER(enabled);
+    }
+
     // Method Description:
     // - The handler for the close button or pressing "Esc" when focusing on the
     //   search dialog.

@@ -431,6 +431,12 @@ namespace Microsoft::Console::Render::Atlas
         u16 to = 0;
     };
 
+    struct SelectionN
+    {
+        u16 from;
+        u16 to;
+    };
+
     struct ShapedRow
     {
         void Clear(u16 y, u16 cellHeight) noexcept
@@ -442,8 +448,8 @@ namespace Microsoft::Console::Render::Atlas
             colors.clear();
             gridLineRanges.clear();
             lineRendition = LineRendition::SingleWidth;
-            selectionFrom = 0;
-            selectionTo = 0;
+            //selectionFrom = 0;
+            //selectionTo = 0;
             dirtyTop = y * cellHeight;
             dirtyBottom = dirtyTop + cellHeight;
         }
@@ -455,8 +461,9 @@ namespace Microsoft::Console::Render::Atlas
         std::vector<u32> colors; // same size as glyphIndices
         std::vector<GridLineRange> gridLineRanges;
         LineRendition lineRendition = LineRendition::SingleWidth;
-        u16 selectionFrom = 0;
-        u16 selectionTo = 0;
+        //u16 selectionFrom = 0;
+        //u16 selectionTo = 0;
+        std::vector<SelectionN> selections;
         til::CoordType dirtyTop = 0;
         til::CoordType dirtyBottom = 0;
     };

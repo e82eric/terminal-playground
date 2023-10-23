@@ -57,7 +57,28 @@ std::vector<til::inclusive_rect> Terminal::_GetSelectionRects() const noexcept
 
     try
     {
-        return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
+        std::vector <til::inclusive_rect> result;
+        for (const auto& selection : _selections)
+        {
+            result.emplace_back(selection);
+        }
+
+        til::inclusive_rect r;
+        r.top = _selection->start.y;
+        r.bottom = _selection->end.y;
+        r.left = _selection->start.x;
+        r.right = _selection->end.x;
+
+        auto other = _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
+
+        for (auto& o : other)
+        {
+            result.emplace_back(o);
+        }
+
+        return result;
+
+        //return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
     }
     CATCH_LOG();
     return result;
@@ -243,7 +264,11 @@ void Terminal::SetSelectionEnd(const til::point viewportPos, std::optional<Selec
         // expand both anchors
         std::tie(_selection->start, _selection->end) = expandedAnchors;
     }
-    //_selectionMode = SelectionInteractionMode::Mouse;
+    if (_selectionMode != SelectionInteractionMode::Mark)
+    {
+        _selectionMode = SelectionInteractionMode::Mouse;
+    }
+    
     _selectionIsTargetingUrl = false;
 }
 
@@ -347,6 +372,11 @@ void Terminal::ToggleMarkMode()
         _selectionMode = SelectionInteractionMode::Mark;
         _selectionIsTargetingUrl = false;
     }
+}
+
+void Terminal::ToggleMarkMode2()
+{
+    _selectionMode = SelectionInteractionMode::Mark;
 }
 
 // Method Description:
@@ -665,7 +695,7 @@ void Terminal::UpdateSelection(SelectionDirection direction, SelectionExpansion 
 
     // 3. Actually modify the selection state
     _selectionIsTargetingUrl = false;
-    _selectionMode = std::max(_selectionMode, SelectionInteractionMode::Keyboard);
+    //_selectionMode = std::max(_selectionMode, SelectionInteractionMode::Keyboard);
     if (shouldMoveBothEndpoints)
     {
         // [Mark Mode] + shift unpressed --> move all three (i.e. just use arrow keys)

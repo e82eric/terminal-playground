@@ -154,6 +154,19 @@ try
     // 1. Paint Background
     RETURN_IF_FAILED(_PaintBackground(pEngine));
 
+    std::vector<Cluster> c;
+    auto c1 = Cluster(L"e", 2);
+    auto c2 = Cluster(L"r", 2);
+    auto c3 = Cluster(L"i", 2);
+    auto c4 = Cluster(L"c", 2);
+    c.emplace_back(c1);
+    c.emplace_back(c2);
+    c.emplace_back(c3);
+    c.emplace_back(c4);
+
+    //THROW_IF_FAILED(pEngine->PaintBufferLine(c, til::point{ 0, 15 }, false, false));
+
+
     // 2. Paint Rows of Text
     _PaintBufferOutput(pEngine);
 

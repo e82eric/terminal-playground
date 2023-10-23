@@ -17,6 +17,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
     {
         InitializeComponent();
 
+        TextBox().KeyDown({ this, &SearchBoxControl::_KeyDownHandler });
         this->CharacterReceived({ this, &SearchBoxControl::_CharacterHandler });
         this->KeyDown({ this, &SearchBoxControl::_KeyDownHandler });
         this->RegisterPropertyChangedCallback(UIElement::VisibilityProperty(), [this](auto&&, auto&&) {
@@ -75,8 +76,33 @@ namespace winrt::Microsoft::Terminal::Control::implementation
     // - <none>
     void SearchBoxControl::TextBoxKeyDown(const winrt::Windows::Foundation::IInspectable& /*sender*/, const Input::KeyRoutedEventArgs& e)
     {
-        if (e.OriginalKey() == winrt::Windows::System::VirtualKey::Enter)
+        if (_vimMode)
         {
+            if (e.OriginalKey() == winrt::Windows::System::VirtualKey::N)
+            {
+                auto coreWindow = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+
+                bool isShiftPressed = (coreWindow.GetKeyState(winrt::Windows::System::VirtualKey::Shift) & winrt::Windows::UI::Core::CoreVirtualKeyStates::Down) == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down;
+                if (isShiftPressed)
+                {
+                    _SearchHandlers(TextBox().Text(), _GoForward(), _CaseSensitive());
+                }
+                else
+                {
+                    _SearchHandlers(TextBox().Text(), !_GoForward(), _CaseSensitive());
+                }
+                e.Handled(true);
+            }
+            else if (e.OriginalKey() != winrt::Windows::System::VirtualKey::Escape)
+            {
+                _VimModeHandlers(true, e.OriginalKey());
+                e.Handled(true);
+            }
+        }
+        else if (e.OriginalKey() == winrt::Windows::System::VirtualKey::Enter)
+        {
+            _vimMode = true;
+            TextBox().IsEnabled(false);
             // If the buttons are disabled, then don't allow enter to search either.
             if (!GoForwardButton().IsEnabled() || !GoBackwardButton().IsEnabled())
             {
@@ -108,10 +134,36 @@ namespace winrt::Microsoft::Terminal::Control::implementation
     void SearchBoxControl::_KeyDownHandler(const winrt::Windows::Foundation::IInspectable& /*sender*/,
                                            const Input::KeyRoutedEventArgs& e)
     {
-        if (e.OriginalKey() == winrt::Windows::System::VirtualKey::Escape)
+        if (_vimMode)
         {
-            _ClosedHandlers(*this, e);
-            e.Handled(true);
+            if (e.OriginalKey() == winrt::Windows::System::VirtualKey::N)
+            {
+                auto coreWindow = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+
+                bool isShiftPressed = (coreWindow.GetKeyState(winrt::Windows::System::VirtualKey::Shift) & winrt::Windows::UI::Core::CoreVirtualKeyStates::Down) == winrt::Windows::UI::Core::CoreVirtualKeyStates::Down;
+                if (isShiftPressed)
+                {
+                    _SearchHandlers(TextBox().Text(), _GoForward(), _CaseSensitive());
+                }
+                else
+                {
+                    _SearchHandlers(TextBox().Text(), !_GoForward(), _CaseSensitive());
+                }
+                e.Handled(true);
+            }
+            else if (e.OriginalKey() != winrt::Windows::System::VirtualKey::Escape && e.OriginalKey() != winrt::Windows::System::VirtualKey::Enter)
+            {
+                _VimModeHandlers(true, e.OriginalKey());
+                e.Handled(true);
+            }
+
+            if (e.OriginalKey() == winrt::Windows::System::VirtualKey::Escape)
+            {
+                TextBox().IsEnabled(true);
+                _vimMode = false;
+                _ClosedHandlers(*this, e);
+                e.Handled(true);
+            }
         }
     }
 
@@ -240,7 +292,10 @@ namespace winrt::Microsoft::Terminal::Control::implementation
     // - <none>
     void SearchBoxControl::TextBoxTextChanged(winrt::Windows::Foundation::IInspectable const& /*sender*/, winrt::Windows::UI::Xaml::RoutedEventArgs const& /*e*/)
     {
-        _SearchChangedHandlers(TextBox().Text(), _GoForward(), _CaseSensitive());
+        if (!_vimMode)
+        {
+            _SearchChangedHandlers(TextBox().Text(), _GoForward(), _CaseSensitive());
+        }
     }
 
     // Method Description:

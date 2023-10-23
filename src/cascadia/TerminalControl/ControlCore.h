@@ -116,6 +116,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         void ClearSelection();
         bool ToggleBlockSelection();
         void ToggleMarkMode();
+        void ToggleMarkMode2();
         Control::SelectionInteractionMode SelectionMode() const;
         bool SwitchSelectionEndpoint();
         bool ExpandSelectionToWord();

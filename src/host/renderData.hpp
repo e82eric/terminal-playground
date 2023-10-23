@@ -54,6 +54,7 @@ public:
     const bool IsBlockSelection() const noexcept override;
     void ClearSelection() override;
     void SelectNewRegion(const til::point coordStart, const til::point coordEnd) override;
+    void SelectNewRegions(std::vector<til::inclusive_rect> source) override;
     const til::point GetSelectionAnchor() const noexcept override;
     const til::point GetSelectionEnd() const noexcept override;
     const bool IsUiaDataInitialized() const noexcept override { return true; }

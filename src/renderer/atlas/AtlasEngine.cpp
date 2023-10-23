@@ -401,9 +401,20 @@ try
     const auto from = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.left, 0, _p.s->viewportCellCount.x - 1));
     const auto to = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.right, from, _p.s->viewportCellCount.x));
 
+
     auto& row = *_p.rows[y];
-    row.selectionFrom = from;
-    row.selectionTo = to;
+    //row.selectionFrom = from;
+    //row.selectionTo = to;
+
+    bool alreadyExists = std::any_of(row.selections.begin(), row.selections.end(), [&from, &to](const SelectionN& selection) {
+        return selection.from == from && selection.to == to;
+    });
+
+    if (!alreadyExists)
+    {
+        auto s = SelectionN{ from, to };
+        row.selections.emplace_back(s);
+    }
 
     _p.dirtyRectInPx.left = std::min(_p.dirtyRectInPx.left, from * _p.s->font->cellSize.x);
     _p.dirtyRectInPx.top = std::min(_p.dirtyRectInPx.top, y * _p.s->font->cellSize.y);

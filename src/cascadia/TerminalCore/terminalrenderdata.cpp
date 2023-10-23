@@ -188,6 +188,15 @@ void Terminal::SelectNewRegion(const til::point coordStart, const til::point coo
     SetSelectionEnd(realCoordEnd, SelectionExpansion::Char);
 }
 
+void Terminal::SelectNewRegions(std::vector<til::inclusive_rect> source)
+{
+    _selections.clear();
+    for (auto& r : source)
+    {
+        _selections.emplace_back(r);
+    }
+}
+
 const std::wstring_view Terminal::GetConsoleTitle() const noexcept
 {
     _assertLocked();

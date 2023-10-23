@@ -107,6 +107,7 @@ namespace Microsoft.Terminal.Control
         void ClearSelection();
         Boolean ToggleBlockSelection();
         void ToggleMarkMode();
+        void ToggleMarkMode2();
         Boolean SwitchSelectionEndpoint();
         Boolean ExpandSelectionToWord();
         void ClearBuffer(ClearBufferType clearType);

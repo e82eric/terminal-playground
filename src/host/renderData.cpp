@@ -369,6 +369,10 @@ void RenderData::SelectNewRegion(const til::point coordStart, const til::point c
     Selection::Instance().SelectNewRegion(coordStart, coordEnd);
 }
 
+void RenderData::SelectNewRegions(std::vector<til::inclusive_rect> source)
+{
+}
+
 // Routine Description:
 // - Gets the current selection anchor position
 // Arguments:

@@ -349,6 +349,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         void _Search(const winrt::hstring& text, const bool goForward, const bool caseSensitive);
 
         void _SearchChanged(const winrt::hstring& text, const bool goForward, const bool caseSensitive);
+        void _VimMode(bool enabled, winrt::Windows::System::VirtualKey key);
         void _CloseSearchBoxControl(const winrt::Windows::Foundation::IInspectable& sender, const Windows::UI::Xaml::RoutedEventArgs& args);
 
         // TSFInputControl Handlers

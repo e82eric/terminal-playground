@@ -168,6 +168,7 @@ private:
     til::point _coordSelectionAnchor;
     // Rectangle is the area inscribing the selection. It is extended to screen edges in a particular way for line selection.
     til::inclusive_rect _srSelectionRect;
+    std::vector<til::inclusive_rect> _srSelectionRects;
 
     // -- Saved Cursor Data --
     // Saved when a selection is started for restoration later. Position is in character coordinates, not pixels.

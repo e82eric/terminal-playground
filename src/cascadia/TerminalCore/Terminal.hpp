@@ -97,6 +97,7 @@ public:
 
     // Write comes from the PTY and goes to our parser to be stored in the output buffer
     void Write(std::wstring_view stringView);
+    void Write2(std::wstring_view stringView);
 
     // WritePastedText comes from our input and goes back to the PTY's input channel
     void WritePastedText(std::wstring_view stringView);
@@ -216,6 +217,7 @@ public:
     const bool IsBlockSelection() const noexcept override;
     void ClearSelection() override;
     void SelectNewRegion(const til::point coordStart, const til::point coordEnd) override;
+    void SelectNewRegions(std::vector<til::inclusive_rect> source) override;
     const til::point GetSelectionAnchor() const noexcept override;
     const til::point GetSelectionEnd() const noexcept override;
     const std::wstring_view GetConsoleTitle() const noexcept override;
@@ -298,6 +300,7 @@ public:
     void SwitchSelectionEndpoint() noexcept;
     void ExpandSelectionToWord();
     void ToggleMarkMode();
+    void ToggleMarkMode2();
     void SelectHyperlink(const SearchDirection dir);
 
     using UpdateSelectionParams = std::optional<std::pair<SelectionDirection, SelectionExpansion>>;
@@ -370,6 +373,7 @@ private:
         til::point pivot;
     };
     std::optional<SelectionAnchors> _selection;
+    std::vector<til::inclusive_rect> _selections;
     bool _blockSelection = false;
     std::wstring _wordDelimiters;
     SelectionExpansion _multiClickSelectionMode = SelectionExpansion::Char;

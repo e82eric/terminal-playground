@@ -533,6 +533,12 @@ namespace winrt::Microsoft::Terminal::Control::implementation
                                             const ::Microsoft::Terminal::Core::ControlKeyStates mods)
     {
         auto lock = _terminal->LockForWriting();
+        if (vkey == VK_ESCAPE)
+        {
+            _isInMarkSearchMode = false;
+            _markSearchString = L"";
+        }
+
         if (vkey == VK_OEM_2)
         {
             _isInMarkSearchMode = true;
@@ -540,7 +546,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             return true;
         }
 
-        if (vkey == 0x4E && (_isInMarkSearchMode || SelectionMode() == SelectionInteractionMode::Mark))
+        if (vkey == 0x4E && (_isInMarkSearchMode || SelectionMode() == SelectionInteractionMode::Mark) && !mods.IsShiftPressed())
         {
             Search(_markSearchString, true, false);
             return true;
@@ -552,10 +558,11 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             return true;
         }
 
-        if (_isInMarkSearchMode)
+        if (_isInMarkSearchMode && !mods.IsShiftPressed())
         {
             wchar_t keyValue = static_cast<wchar_t>(vkey);
             _markSearchString = _markSearchString + keyValue;
+            _terminal->Write2(_markSearchString);
             Search(_markSearchString, false, false);
             return true;
         }
@@ -1341,6 +1348,13 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         _updateSelectionUI();
     }
 
+    void ControlCore::ToggleMarkMode2()
+    {
+        const auto lock = _terminal->LockForWriting();
+        _terminal->ToggleMarkMode2();
+        //_updateSelectionUI();
+    }
+
     Control::SelectionInteractionMode ControlCore::SelectionMode() const
     {
         return static_cast<Control::SelectionInteractionMode>(_terminal->SelectionMode());
@@ -1670,9 +1684,9 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             // this is used for search,
             // DO NOT call _updateSelectionUI() here.
             // We don't want to show the markers so manually tell it to clear it.
-            _terminal->SetBlockSelection(false);
+            //_terminal->SetBlockSelection(false);
             _renderer->TriggerSelection();
-            _UpdateSelectionMarkersHandlers(*this, winrt::make<implementation::UpdateSelectionMarkersEventArgs>(true));
+            _UpdateSelectionMarkersHandlers(*this, winrt::make<implementation::UpdateSelectionMarkersEventArgs>(false));
 
             foundResults->TotalMatches(gsl::narrow<int32_t>(_searcher.Results().size()));
             foundResults->CurrentMatch(gsl::narrow<int32_t>(_searcher.CurrentMatch()));
