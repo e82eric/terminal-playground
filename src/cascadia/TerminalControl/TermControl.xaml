@@ -1303,7 +1303,6 @@
                                         Closed="_CloseSearchBoxControl"
                                         Search="_Search"
                                         SearchChanged="_SearchChanged"
-                                        VimMode="_VimMode"
                                         Visibility="Collapsed" />
             </Grid>
 

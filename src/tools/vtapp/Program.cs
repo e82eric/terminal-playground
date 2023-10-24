@@ -287,7 +287,15 @@ namespace VTApp
 
                             if (Pinvoke.GetConsoleMode(hCon, out mode))
                             {
-                                mode ^= Pinvoke.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                                if ((mode & Pinvoke.ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0)
+                                {
+                                    mode &= ~Pinvoke.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                                }
+                                else
+                                {
+                                    mode |= Pinvoke.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                                }
+
                                 Pinvoke.SetConsoleMode(hCon, mode);
                             }
                             break;
@@ -299,7 +307,14 @@ namespace VTApp
                             int mode;
                             if (Pinvoke.GetConsoleMode(hCon, out mode))
                             {
-                                mode ^=  Pinvoke.ENABLE_VIRTUAL_TERMINAL_INPUT;
+                                if ((mode & Pinvoke.ENABLE_VIRTUAL_TERMINAL_INPUT) != 0)
+                                {
+                                    mode &= ~Pinvoke.ENABLE_VIRTUAL_TERMINAL_INPUT;
+                                }
+                                else
+                                {
+                                    mode |= Pinvoke.ENABLE_VIRTUAL_TERMINAL_INPUT;
+                                }
                                 mode &= ~Pinvoke.ENABLE_PROCESSED_INPUT;
                                 Pinvoke.SetConsoleMode(hCon, mode);
                             }

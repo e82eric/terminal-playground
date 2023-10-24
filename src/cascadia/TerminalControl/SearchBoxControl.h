@@ -46,7 +46,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
 
         WINRT_CALLBACK(Search, SearchHandler);
         WINRT_CALLBACK(SearchChanged, SearchHandler);
-        WINRT_CALLBACK(VimMode, VimModeHandler);
         TYPED_EVENT(Closed, Control::SearchBoxControl, Windows::UI::Xaml::RoutedEventArgs);
 
     private:
@@ -55,7 +54,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         static winrt::hstring _FormatStatus(int32_t totalMatches, int32_t currentMatch);
         static double _TextWidth(winrt::hstring text, double fontSize);
         double _GetStatusMaxWidth();
-        bool _vimMode;
 
         bool _GoForward();
         bool _CaseSensitive();

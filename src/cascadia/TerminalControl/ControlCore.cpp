@@ -521,10 +521,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         // modifier key. We'll wait for a real keystroke to dismiss the
         // GH #7395 - don't update selection when taking PrintScreen
         // selection.
-        if (vkey == 0x4a || vkey == 0x4b)
-        {
-            return true;
-        }
 
         return _terminal->IsSelectionActive() && ::Microsoft::Terminal::Core::Terminal::IsInputKey(vkey);
     }
@@ -533,51 +529,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
                                             const ::Microsoft::Terminal::Core::ControlKeyStates mods)
     {
         auto lock = _terminal->LockForWriting();
-        if (vkey == VK_ESCAPE)
-        {
-            _isInMarkSearchMode = false;
-            _markSearchString = L"";
-        }
-
-        if (vkey == VK_OEM_2)
-        {
-            _isInMarkSearchMode = true;
-            _markSearchString = L"";
-            return true;
-        }
-
-        if (vkey == 0x4E && (_isInMarkSearchMode || SelectionMode() == SelectionInteractionMode::Mark) && !mods.IsShiftPressed())
-        {
-            Search(_markSearchString, true, false);
-            return true;
-        }
-
-        if (vkey == VK_RETURN && _isInMarkSearchMode)
-        {
-            _isInMarkSearchMode = false;
-            return true;
-        }
-
-        if (_isInMarkSearchMode && !mods.IsShiftPressed())
-        {
-            wchar_t keyValue = static_cast<wchar_t>(vkey);
-            _markSearchString = _markSearchString + keyValue;
-            _terminal->Write2(_markSearchString);
-            Search(_markSearchString, false, false);
-            return true;
-        }
-
-        if (vkey >= '0' && vkey <= '9' && SelectionMode() == SelectionInteractionMode::Mark)
-        {
-            _markMovementStr += std::to_string(vkey - '0');
-            return true;
-        }
-        else if (vkey == 0x4a || vkey == 0x4b)
-        {
-            _markMovementNumber = (WORD)std::stoi(_markMovementStr);
-            _markMovementStr = "";
-            return true;
-        }
 
         if (_shouldTryUpdateSelection(vkey) && _terminal->SelectionMode() == ::Terminal::SelectionInteractionMode::Mark)
         {
@@ -627,17 +578,9 @@ namespace winrt::Microsoft::Terminal::Control::implementation
                 return true;
             }
             else if (const auto updateSlnParams{ _terminal->ConvertKeyEventToUpdateSelectionParams(mods, vkey) })
-            {                
-                 // try to update the selection
-                if (_markMovementNumber > 0)
-                {
-                    _terminal->UpdateSelection(updateSlnParams->first, updateSlnParams->second, mods, _markMovementNumber);
-                }
-                else
-                {
-                    _terminal->UpdateSelection(updateSlnParams->first, updateSlnParams->second, mods, vkey);
-                }
-                
+            {
+                // try to update the selection
+                _terminal->UpdateSelection(updateSlnParams->first, updateSlnParams->second, mods);
                 _updateSelectionUI();
                 return true;
             }
@@ -671,7 +614,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             // try to update the selection
             if (const auto updateSlnParams{ _terminal->ConvertKeyEventToUpdateSelectionParams(modifiers, vkey) })
             {
-                _terminal->UpdateSelection(updateSlnParams->first, updateSlnParams->second, modifiers, vkey);
+                _terminal->UpdateSelection(updateSlnParams->first, updateSlnParams->second, modifiers);
                 _updateSelectionUI();
                 return true;
             }
@@ -1348,13 +1291,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         _updateSelectionUI();
     }
 
-    void ControlCore::ToggleMarkMode2()
-    {
-        const auto lock = _terminal->LockForWriting();
-        _terminal->ToggleMarkMode2();
-        //_updateSelectionUI();
-    }
-
     Control::SelectionInteractionMode ControlCore::SelectionMode() const
     {
         return static_cast<Control::SelectionInteractionMode>(_terminal->SelectionMode());
@@ -1692,10 +1628,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             foundResults->CurrentMatch(gsl::narrow<int32_t>(_searcher.CurrentMatch()));
 
             _terminal->AlwaysNotifyOnBufferRotation(true);
-        }
-        else
-        {
-            _renderer->TriggerSelection();
         }
 
         // Raise a FoundMatch event, which the control will use to notify

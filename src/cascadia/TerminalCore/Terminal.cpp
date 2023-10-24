@@ -408,53 +408,8 @@ try
 }
 CATCH_RETURN()
 
-void Terminal::Write2(std::wstring_view stringView)
-{
-    RowWriteState state;
-    state.text = stringView; // set some sample text for writing
-    state.columnBegin = 5; // set where you want to start writing in the
-
-    TextColor foreground(TextColor::DARK_RED, false);
-    TextColor background(TextColor::BRIGHT_WHITE, false);
-    TextAttribute myAttribute(1);
-
-    til::CoordType row = 25; // you're writing to the 10th row, for instance
-
-    _activeBuffer().Write(row, myAttribute, state);
-
-    //const auto& cursor = _activeBuffer().GetCursor();
-    //const til::point cursorPosBefore{ cursor.GetPosition() };
-
-    //_stateMachine->ProcessString(stringView);
-
-    //const til::point cursorPosAfter{ cursor.GetPosition() };
-
-    //// Firing the CursorPositionChanged event is very expensive so we try not to
-    //// do that when the cursor does not need to be redrawn.
-    //if (cursorPosBefore != cursorPosAfter)
-    //{
-    //    _NotifyTerminalCursorPositionChanged();
-    //}
-}
-
 void Terminal::Write(std::wstring_view stringView)
 {
-    // 1. Create or obtain an instance of RowWriteState.
-    //RowWriteState state;
-    //state.text = L"Hello, World!"; // set some sample text for writing
-    //state.columnBegin = 5; // set where you want to start writing in the 
-
-    //TextColor foreground(TextColor::DARK_RED, false);
-    //TextColor background(TextColor::BRIGHT_WHITE, false);
-    //TextAttribute myAttribute(1);
-
-    // 3. Provide a value of type til::CoordType.
-    //til::CoordType row = 25; // you're writing to the 10th row, for instance
-
-    // 4. Call the Write function with the appropriate arguments.
-    //_activeBuffer().Write(row, myAttribute, state);
-
-
     const auto& cursor = _activeBuffer().GetCursor();
     const til::point cursorPosBefore{ cursor.GetPosition() };
 

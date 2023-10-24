@@ -2078,54 +2078,19 @@ void BackendD3D::_drawSelection(const RenderingPayload& p)
         {
             for (auto s : row->selections)
             {
-                //if (s.from == lastFrom && s.to == lastTo)
-                //{
-                //    _getLastQuad().size.y += p.s->font->cellSize.y;
-                //}
-                //else
-                //{
-                    _appendQuad() = {
-                        .shadingType = ShadingType::Selection,
-                        .position = {
-                            p.s->font->cellSize.x * s.from,
-                            p.s->font->cellSize.y * y,
-                        },
-                        .size = {
-                            static_cast<u16>(p.s->font->cellSize.x * (s.to - s.from)),
-                            p.s->font->cellSize.y,
-                        },
-                        .color = p.s->misc->selectionColor,
-                    };
-                    //lastFrom = s.from;
-                    //lastTo = s.to;
-                //}
+                _appendQuad() = {
+                    .shadingType = ShadingType::Selection,
+                    .position = {
+                        p.s->font->cellSize.x * s.from,
+                        p.s->font->cellSize.y * y,
+                    },
+                    .size = {
+                        static_cast<u16>(p.s->font->cellSize.x * (s.to - s.from)),
+                        p.s->font->cellSize.y,
+                    },
+                    .color = p.s->misc->selectionColor,
+                };
             }
-            //if (row->selectionTo > row->selectionFrom)
-            //{
-            //     //If the current selection line matches the previous one, we can just extend the previous quad downwards.
-            //     //The way this is implemented isn't very smart, but we also don't have very many rows to iterate through.
-            //    if (row->selectionFrom == lastFrom && row->selectionTo == lastTo)
-            //    {
-            //        _getLastQuad().size.y += p.s->font->cellSize.y;
-            //    }
-            //    else
-            //    {
-            //        _appendQuad() = {
-            //            .shadingType = ShadingType::Selection,
-            //            .position = {
-            //                p.s->font->cellSize.x * row->selectionFrom,
-            //                p.s->font->cellSize.y * y,
-            //            },
-            //            .size = {
-            //                static_cast<u16>(p.s->font->cellSize.x * (row->selectionTo - row->selectionFrom)),
-            //                p.s->font->cellSize.y,
-            //            },
-            //            .color = p.s->misc->selectionColor,
-            //        };
-            //        lastFrom = row->selectionFrom;
-            //        lastTo = row->selectionTo;
-            //    }
-            //}
         }
 
         y++;

@@ -97,7 +97,6 @@ public:
 
     // Write comes from the PTY and goes to our parser to be stored in the output buffer
     void Write(std::wstring_view stringView);
-    void Write2(std::wstring_view stringView);
 
     // WritePastedText comes from our input and goes back to the PTY's input channel
     void WritePastedText(std::wstring_view stringView);
@@ -295,13 +294,12 @@ public:
     void SetSelectionAnchor(const til::point position);
     void SetSelectionEnd(const til::point position, std::optional<SelectionExpansion> newExpansionMode = std::nullopt);
     void SetBlockSelection(const bool isEnabled) noexcept;
-    void UpdateSelection(SelectionDirection direction, SelectionExpansion mode, ControlKeyStates mods, WORD vkey);
+    void UpdateSelection(SelectionDirection direction, SelectionExpansion mode, ControlKeyStates mods);
     void SelectAll();
     SelectionInteractionMode SelectionMode() const noexcept;
     void SwitchSelectionEndpoint() noexcept;
     void ExpandSelectionToWord();
     void ToggleMarkMode();
-    void ToggleMarkMode2();
     void SelectHyperlink(const SearchDirection dir);
 
     using UpdateSelectionParams = std::optional<std::pair<SelectionDirection, SelectionExpansion>>;

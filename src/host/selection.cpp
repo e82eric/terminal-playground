@@ -499,13 +499,6 @@ void Selection::InitializeMarkSelection()
 // - <none>
 void Selection::SelectNewRegion(const til::point coordStart, const til::point coordEnd)
 {
-    til::inclusive_rect rect;
-    rect.left = coordStart.x;
-    rect.top = coordStart.y;
-    rect.right = coordEnd.x;
-    rect.bottom = coordEnd.y;
-
-    _srSelectionRects.emplace_back(rect);
     // clear existing selection if applicable
     ClearSelection();
 

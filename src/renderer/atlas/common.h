@@ -449,10 +449,11 @@ namespace Microsoft::Console::Render::Atlas
             colors.clear();
             gridLineRanges.clear();
             lineRendition = LineRendition::SingleWidth;
-            //selectionFrom = 0;
-            //selectionTo = 0;
+            selectionFrom = 0;
+            selectionTo = 0;
             dirtyTop = y * cellHeight;
             dirtyBottom = dirtyTop + cellHeight;
+            selections.clear();
         }
 
         std::vector<FontMapping> mappings;

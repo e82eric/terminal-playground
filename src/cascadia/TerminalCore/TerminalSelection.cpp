@@ -58,34 +58,6 @@ std::vector<til::inclusive_rect> Terminal::_GetSelectionRects() const noexcept
     try
     {
         return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
-        //std::vector <til::inclusive_rect> result;
-        //for (const auto& selection : _selections)
-        //{
-        //    auto start = til::point{ selection.left, selection.top};
-        //    auto end = til::point{ selection.right, selection.top };
-        //    auto adj = _activeBuffer().GetTextRects(start, end, _blockSelection, false);
-        //    for (auto a : adj)
-        //    {
-        //        result.emplace_back(a);
-        //    }
-        //}
-
-        //til::inclusive_rect r;
-        //r.top = _selection->start.y;
-        //r.bottom = _selection->end.y;
-        //r.left = _selection->start.x;
-        //r.right = _selection->end.x;
-
-        //auto other = _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
-
-        //for (auto& o : other)
-        //{
-        //    result.emplace_back(o);
-        //}
-
-        //return result;
-
-        //return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
     }
     CATCH_LOG();
     return result;
@@ -118,22 +90,7 @@ std::vector<til::inclusive_rect> Terminal::_GetSearchSelectionRects() const noex
             }
         }
 
-        //til::inclusive_rect r;
-        //r.top = _selection->start.y;
-        //r.bottom = _selection->end.y;
-        //r.left = _selection->start.x;
-        //r.right = _selection->end.x;
-
-        //auto other = _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
-
-        //for (auto& o : other)
-        //{
-        //    result.emplace_back(o);
-        //}
-
         return result;
-
-        //return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
     }
     CATCH_LOG();
     return result;
@@ -319,11 +276,8 @@ void Terminal::SetSelectionEnd(const til::point viewportPos, std::optional<Selec
         // expand both anchors
         std::tie(_selection->start, _selection->end) = expandedAnchors;
     }
-    //if (_selectionMode != SelectionInteractionMode::Mark)
-    //{
-        _selectionMode = SelectionInteractionMode::Mouse;
-    //}
-    
+
+    _selectionMode = SelectionInteractionMode::Mouse;
     _selectionIsTargetingUrl = false;
 }
 
@@ -427,11 +381,6 @@ void Terminal::ToggleMarkMode()
         _selectionMode = SelectionInteractionMode::Mark;
         _selectionIsTargetingUrl = false;
     }
-}
-
-void Terminal::ToggleMarkMode2()
-{
-    _selectionMode = SelectionInteractionMode::Mark;
 }
 
 // Method Description:
@@ -668,10 +617,6 @@ Terminal::UpdateSelectionParams Terminal::ConvertKeyEventToUpdateSelectionParams
                 return UpdateSelectionParams{ std::in_place, SelectionDirection::Up, SelectionExpansion::Char };
             case VK_DOWN:
                 return UpdateSelectionParams{ std::in_place, SelectionDirection::Down, SelectionExpansion::Char };
-            case 0x4a:
-                return UpdateSelectionParams{ std::in_place, SelectionDirection::Down, SelectionExpansion::Char };
-            case 0x4b:
-                return UpdateSelectionParams{ std::in_place, SelectionDirection::Up, SelectionExpansion::Char };
             default:
                 break;
             }
@@ -686,7 +631,7 @@ Terminal::UpdateSelectionParams Terminal::ConvertKeyEventToUpdateSelectionParams
 // - direction: the direction to move the selection endpoint in
 // - mode: the type of movement to be performed (i.e. move by word)
 // - mods: the key modifiers pressed when performing this update
-void Terminal::UpdateSelection(SelectionDirection direction, SelectionExpansion mode, ControlKeyStates mods, WORD vkey)
+void Terminal::UpdateSelection(SelectionDirection direction, SelectionExpansion mode, ControlKeyStates mods)
 {
     // This is a special variable used to track if we should move the cursor when in mark mode.
     //   We have special functionality where if you use the "switchSelectionEndpoint" action
@@ -714,38 +659,22 @@ void Terminal::UpdateSelection(SelectionDirection direction, SelectionExpansion 
         WI_SetFlag(_selectionEndpoint, SelectionEndpoint::Start);
     }
     auto targetPos{ WI_IsFlagSet(_selectionEndpoint, SelectionEndpoint::Start) ? _selection->start : _selection->end };
-    if (vkey >= 0 && vkey <= 20)
+
+    // 2 Perform the movement
+    switch (mode)
     {
-        const auto bufferSize{ _activeBuffer().GetSize() };
-        if (direction == SelectionDirection::Up)
-        {
-            const auto newY{ targetPos.y - vkey };
-            targetPos = newY < bufferSize.Top() ? bufferSize.Origin() : til::point{ targetPos.x, newY };
-        }
-        else
-        {
-            const auto newY{ targetPos.y + vkey };
-            targetPos = newY < bufferSize.Top() ? bufferSize.Origin() : til::point{ targetPos.x, newY };
-        }
-    }
-    else
-    {
-        // 2 Perform the movement
-        switch (mode)
-        {
-        case SelectionExpansion::Char:
-            _MoveByChar(direction, targetPos);
-            break;
-        case SelectionExpansion::Word:
-            _MoveByWord(direction, targetPos);
-            break;
-        case SelectionExpansion::Viewport:
-            _MoveByViewport(direction, targetPos);
-            break;
-        case SelectionExpansion::Buffer:
-            _MoveByBuffer(direction, targetPos);
-            break;
-        }
+    case SelectionExpansion::Char:
+        _MoveByChar(direction, targetPos);
+        break;
+    case SelectionExpansion::Word:
+        _MoveByWord(direction, targetPos);
+        break;
+    case SelectionExpansion::Viewport:
+        _MoveByViewport(direction, targetPos);
+        break;
+    case SelectionExpansion::Buffer:
+        _MoveByBuffer(direction, targetPos);
+        break;
     }
 
     // 3. Actually modify the selection state

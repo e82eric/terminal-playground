@@ -4,7 +4,6 @@
 namespace Microsoft.Terminal.Control
 {
     delegate void SearchHandler(String query, Boolean goForward, Boolean isCaseSensitive);
-    delegate void VimModeHandler(Boolean enabled, Windows.System.VirtualKey key);
 
     [default_interface] runtimeclass SearchBoxControl : Windows.UI.Xaml.Controls.UserControl
     {
@@ -16,7 +15,6 @@ namespace Microsoft.Terminal.Control
 
         Boolean NavigationEnabled;
 
-        event VimModeHandler VimMode;
         event SearchHandler Search;
         event SearchHandler SearchChanged;
         event Windows.Foundation.TypedEventHandler<SearchBoxControl, Windows.UI.Xaml.RoutedEventArgs> Closed;

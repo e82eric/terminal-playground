@@ -1688,16 +1688,6 @@ const std::vector<til::inclusive_rect> TextBuffer::GetTextRects(til::point start
 {
     std::vector<til::inclusive_rect> textRects;
 
-    //// Step 1: Create a new rectangle at (1,1)
-    //til::inclusive_rect additionalRect;
-    //additionalRect.top = 0;
-    //additionalRect.bottom = 0;
-    //additionalRect.left = 0;
-    //additionalRect.right = 0;
-
-    //// Step 2: Add this rectangle to textRects
-    //textRects.emplace_back(additionalRect);
-
     const auto bufferSize = GetSize();
 
     // (0,0) is the top-left of the screen
