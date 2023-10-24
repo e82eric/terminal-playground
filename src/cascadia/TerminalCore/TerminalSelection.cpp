@@ -57,24 +57,79 @@ std::vector<til::inclusive_rect> Terminal::_GetSelectionRects() const noexcept
 
     try
     {
-        std::vector <til::inclusive_rect> result;
+        return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
+        //std::vector <til::inclusive_rect> result;
+        //for (const auto& selection : _selections)
+        //{
+        //    auto start = til::point{ selection.left, selection.top};
+        //    auto end = til::point{ selection.right, selection.top };
+        //    auto adj = _activeBuffer().GetTextRects(start, end, _blockSelection, false);
+        //    for (auto a : adj)
+        //    {
+        //        result.emplace_back(a);
+        //    }
+        //}
+
+        //til::inclusive_rect r;
+        //r.top = _selection->start.y;
+        //r.bottom = _selection->end.y;
+        //r.left = _selection->start.x;
+        //r.right = _selection->end.x;
+
+        //auto other = _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
+
+        //for (auto& o : other)
+        //{
+        //    result.emplace_back(o);
+        //}
+
+        //return result;
+
+        //return _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
+    }
+    CATCH_LOG();
+    return result;
+}
+
+// Method Description:
+// - Helper to determine the selected region of the buffer. Used for rendering.
+// Return Value:
+// - A vector of rectangles representing the regions to select, line by line. They are absolute coordinates relative to the buffer origin.
+std::vector<til::inclusive_rect> Terminal::_GetSearchSelectionRects() const noexcept
+{
+    std::vector<til::inclusive_rect> result;
+
+    if (!IsSelectionActive())
+    {
+        return result;
+    }
+
+    try
+    {
+        std::vector<til::inclusive_rect> result;
         for (const auto& selection : _selections)
         {
-            result.emplace_back(selection);
+            auto start = til::point{ selection.left, selection.top };
+            auto end = til::point{ selection.right, selection.top };
+            auto adj = _activeBuffer().GetTextRects(start, end, _blockSelection, false);
+            for (auto a : adj)
+            {
+                result.emplace_back(a);
+            }
         }
 
-        til::inclusive_rect r;
-        r.top = _selection->start.y;
-        r.bottom = _selection->end.y;
-        r.left = _selection->start.x;
-        r.right = _selection->end.x;
+        //til::inclusive_rect r;
+        //r.top = _selection->start.y;
+        //r.bottom = _selection->end.y;
+        //r.left = _selection->start.x;
+        //r.right = _selection->end.x;
 
-        auto other = _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
+        //auto other = _activeBuffer().GetTextRects(_selection->start, _selection->end, _blockSelection, false);
 
-        for (auto& o : other)
-        {
-            result.emplace_back(o);
-        }
+        //for (auto& o : other)
+        //{
+        //    result.emplace_back(o);
+        //}
 
         return result;
 
@@ -264,10 +319,10 @@ void Terminal::SetSelectionEnd(const til::point viewportPos, std::optional<Selec
         // expand both anchors
         std::tie(_selection->start, _selection->end) = expandedAnchors;
     }
-    if (_selectionMode != SelectionInteractionMode::Mark)
-    {
+    //if (_selectionMode != SelectionInteractionMode::Mark)
+    //{
         _selectionMode = SelectionInteractionMode::Mouse;
-    }
+    //}
     
     _selectionIsTargetingUrl = false;
 }
@@ -695,7 +750,7 @@ void Terminal::UpdateSelection(SelectionDirection direction, SelectionExpansion 
 
     // 3. Actually modify the selection state
     _selectionIsTargetingUrl = false;
-    //_selectionMode = std::max(_selectionMode, SelectionInteractionMode::Keyboard);
+    _selectionMode = std::max(_selectionMode, SelectionInteractionMode::Keyboard);
     if (shouldMoveBothEndpoints)
     {
         // [Mark Mode] + shift unpressed --> move all three (i.e. just use arrow keys)
@@ -938,6 +993,7 @@ void Terminal::_ScrollToPoint(const til::point pos)
             const auto amtBelowView = pos.y - visibleViewport.BottomInclusive();
             _scrollOffset -= amtBelowView;
         }
+
         _NotifyScrollEvent();
         _activeBuffer().TriggerScroll();
     }

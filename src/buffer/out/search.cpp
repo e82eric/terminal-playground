@@ -116,6 +116,8 @@ const til::point_span* Search::GetCurrent() const noexcept
 
 bool Search::SelectCurrent() const
 {
+    std::vector<til::inclusive_rect> toSelect;
+
     if (const auto s = GetCurrent())
     {
         // Convert buffer selection offsets into the equivalent screen coordinates
@@ -123,24 +125,28 @@ bool Search::SelectCurrent() const
         const auto& textBuffer = _renderData->GetTextBuffer();
         const auto selStart = textBuffer.BufferToScreenPosition(s->start);
         const auto selEnd = textBuffer.BufferToScreenPosition(s->end);
-
-        std::vector<til::inclusive_rect> toSelect;
+        
         for (const auto& r : _results)
         {
+            const auto rbStart = textBuffer.BufferToScreenPosition(r.start);
+            const auto rbEnd = textBuffer.BufferToScreenPosition(r.end);
+
             til::inclusive_rect re;
-            re.top = r.start.y;
-            re.bottom = r.end.y;
-            re.left = r.start.x;
-            re.right = r.end.x;
+            re.top = rbStart.y;
+            re.bottom = rbEnd.y;
+            re.left = rbStart.x;
+            re.right = rbEnd.x;
 
             toSelect.emplace_back(re);
         }
 
+        _renderData->SelectNewRegion(selStart, selEnd);
         _renderData->SelectNewRegions(toSelect);
 
-        _renderData->SelectNewRegion(selStart, selEnd);
         return true;
     }
+
+    _renderData->SelectNewRegions(toSelect);
 
     return false;
 }

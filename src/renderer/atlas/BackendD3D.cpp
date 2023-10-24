@@ -2096,8 +2096,8 @@ void BackendD3D::_drawSelection(const RenderingPayload& p)
                         },
                         .color = p.s->misc->selectionColor,
                     };
-                    lastFrom = s.from;
-                    lastTo = s.to;
+                    //lastFrom = s.from;
+                    //lastTo = s.to;
                 //}
             }
             //if (row->selectionTo > row->selectionFrom)
@@ -2126,6 +2126,39 @@ void BackendD3D::_drawSelection(const RenderingPayload& p)
             //        lastTo = row->selectionTo;
             //    }
             //}
+        }
+
+        y++;
+    }
+
+    y = 0;
+    for (const auto& row : p.rows)
+    {
+        if (row->selectionTo > row->selectionFrom)
+        {
+            // If the current selection line matches the previous one, we can just extend the previous quad downwards.
+            // The way this is implemented isn't very smart, but we also don't have very many rows to iterate through.
+            if (row->selectionFrom == lastFrom && row->selectionTo == lastTo)
+            {
+                    _getLastQuad().size.y += p.s->font->cellSize.y;
+            }
+            else
+            {
+                    _appendQuad() = {
+                        .shadingType = ShadingType::Selection,
+                        .position = {
+                            p.s->font->cellSize.x * row->selectionFrom,
+                            p.s->font->cellSize.y * y,
+                        },
+                        .size = {
+                            static_cast<u16>(p.s->font->cellSize.x * (row->selectionTo - row->selectionFrom)),
+                            p.s->font->cellSize.y,
+                        },
+                        .color = p.s->misc->selectionColor2,
+                    };
+                    lastFrom = row->selectionFrom;
+                    lastTo = row->selectionTo;
+            }
         }
 
         y++;

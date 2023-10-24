@@ -26,6 +26,7 @@ public:
     const FontInfo& GetFontInfo() const noexcept override;
 
     std::vector<Microsoft::Console::Types::Viewport> GetSelectionRects() noexcept override;
+    std::vector<Microsoft::Console::Types::Viewport> GetSearchSelectionRects() noexcept override;
 
     void LockConsole() noexcept override;
     void UnlockConsole() noexcept override;

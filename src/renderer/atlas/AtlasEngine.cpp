@@ -7,6 +7,7 @@
 #include "Backend.h"
 #include "DWriteTextAnalysis.h"
 #include "../../interactivity/win32/CustomWindowMessages.h"
+#include <set>
 
 // #### NOTE ####
 // This file should only contain methods that are only accessed by the caller of Present() (the "Renderer" class).
@@ -401,20 +402,39 @@ try
     const auto from = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.left, 0, _p.s->viewportCellCount.x - 1));
     const auto to = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.right, from, _p.s->viewportCellCount.x));
 
-
     auto& row = *_p.rows[y];
-    //row.selectionFrom = from;
-    //row.selectionTo = to;
+    row.selectionFrom = from;
+    row.selectionTo = to;
 
-    bool alreadyExists = std::any_of(row.selections.begin(), row.selections.end(), [&from, &to](const SelectionN& selection) {
-        return selection.from == from && selection.to == to;
+ /*   bool alreadyExists = std::any_of(row.selections.begin(), row.selections.end(), [&from](const SelectionN& selection) {
+        return selection.from;
     });
 
     if (!alreadyExists)
     {
         auto s = SelectionN{ from, to };
         row.selections.emplace_back(s);
-    }
+    }*/
+
+    // Find the existing selection
+    //auto it = std::find_if(row.selections.begin(), row.selections.end(), [&from](const SelectionN& selection) {
+    //    return selection.from == from;
+    //});
+
+    //if (it != row.selections.end())
+    //{
+    //    // Update the existing selection if the new "to" value is greater
+    //    if (to > it->to)
+    //    {
+    //        it->to = to;
+    //    }
+    //}
+    //else
+    //{
+    //    // Add a new selection since it doesn't exist
+    //    auto s = SelectionN{ from, to };
+    //    row.selections.emplace_back(s);
+    //}
 
     _p.dirtyRectInPx.left = std::min(_p.dirtyRectInPx.left, from * _p.s->font->cellSize.x);
     _p.dirtyRectInPx.top = std::min(_p.dirtyRectInPx.top, y * _p.s->font->cellSize.y);
@@ -423,6 +443,75 @@ try
     return S_OK;
 }
 CATCH_RETURN()
+
+[[nodiscard]] HRESULT AtlasEngine::PaintSelections(const std::vector<til::rect>& rects) noexcept
+try
+{
+    // Unfortunately there's no step after Renderer::_PaintBufferOutput that
+    // would inform us that it's done with the last AtlasEngine::PaintBufferLine.
+    // As such we got to call _flushBufferLine() here just to be sure.
+    _flushBufferLine();
+
+    for (auto r : _p.rows)
+    {
+        r->selections.clear();
+        r->selectionTo = 0;
+        r->selectionFrom = 0;
+    }
+
+    for (auto rect : rects)
+    {
+        const auto y = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.top, 0, _p.s->viewportCellCount.y));
+        const auto from = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.left, 0, _p.s->viewportCellCount.x - 1));
+        const auto to = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.right, from, _p.s->viewportCellCount.x));
+
+        if (y < _p.rows.size() && rect.top >= 0)
+        {
+            auto& row = *_p.rows[y];
+
+            //row.selectionFrom = from;
+            //row.selectionTo = to;
+
+            /*   bool alreadyExists = std::any_of(row.selections.begin(), row.selections.end(), [&from](const SelectionN& selection) {
+        return selection.from;
+    });
+
+    if (!alreadyExists)
+    {
+        auto s = SelectionN{ from, to };
+        row.selections.emplace_back(s);
+    }*/
+
+            // Find the existing selection
+            auto it = std::find_if(row.selections.begin(), row.selections.end(), [&from](const SelectionN& selection) {
+                return selection.from == from;
+            });
+
+            if (it != row.selections.end())
+            {
+                // Update the existing selection if the new "to" value is greater
+                if (to > it->to)
+                {
+                    it->to = to;
+                }
+            }
+            else
+            {
+                // Add a new selection since it doesn't exist
+                auto s = SelectionN{ from, to };
+                row.selections.emplace_back(s);
+            }
+
+            _p.dirtyRectInPx.left = std::min(_p.dirtyRectInPx.left, from * _p.s->font->cellSize.x);
+            _p.dirtyRectInPx.top = std::min(_p.dirtyRectInPx.top, y * _p.s->font->cellSize.y);
+            _p.dirtyRectInPx.right = std::max(_p.dirtyRectInPx.right, to * _p.s->font->cellSize.x);
+            _p.dirtyRectInPx.bottom = std::max(_p.dirtyRectInPx.bottom, _p.dirtyRectInPx.top + _p.s->font->cellSize.y);
+        }
+    }
+    return S_OK;
+}
+CATCH_RETURN()
+
 
 [[nodiscard]] HRESULT AtlasEngine::PaintCursor(const CursorOptions& options) noexcept
 try

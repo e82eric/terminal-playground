@@ -150,6 +150,24 @@ catch (...)
     return {};
 }
 
+std::vector<Microsoft::Console::Types::Viewport> Terminal::GetSearchSelectionRects() noexcept
+try
+{
+    std::vector<Viewport> result;
+
+    for (const auto& lineRect : _GetSearchSelectionRects())
+    {
+        result.emplace_back(Viewport::FromInclusive(lineRect));
+    }
+
+    return result;
+}
+catch (...)
+{
+    LOG_CAUGHT_EXCEPTION();
+    return {};
+}
+
 void Terminal::SelectNewRegion(const til::point coordStart, const til::point coordEnd)
 {
 #pragma warning(push)
@@ -193,7 +211,45 @@ void Terminal::SelectNewRegions(std::vector<til::inclusive_rect> source)
     _selections.clear();
     for (auto& r : source)
     {
-        _selections.emplace_back(r);
+#pragma warning(push)
+#pragma warning(disable : 26496) // cpp core checks wants these const, but they're decremented below.
+        //auto realCoordStart = r.left;
+        //auto realCoordEnd = r.right;
+#pragma warning(pop)
+
+        auto notifyScrollChange = false;
+        if (r.top < _VisibleStartIndex())
+        {
+            // recalculate the scrollOffset
+            _scrollOffset = ViewStartIndex() - r.top;
+            notifyScrollChange = true;
+        }
+        else if (r.top > _VisibleEndIndex())
+        {
+            // recalculate the scrollOffset, note that if the found text is
+            // beneath the current visible viewport, it may be within the
+            // current mutableViewport and the scrollOffset will be smaller
+            // than 0
+            _scrollOffset = std::max(0, ViewStartIndex() - r.top);
+            notifyScrollChange = true;
+        }
+
+        if (notifyScrollChange)
+        {
+            _activeBuffer().TriggerScroll();
+            _NotifyScrollEvent();
+        }
+
+        r.top -= _VisibleStartIndex();
+        r.bottom -= _VisibleStartIndex();
+
+        auto rps = _ConvertToBufferCell(til::point{ r.left, r.top });
+        auto rpe = _ConvertToBufferCell(til::point{ r.right, r.bottom });
+
+        auto rr = til::inclusive_rect{ rps.x, rps.y, rpe.x, rpe.y };
+
+
+        _selections.emplace_back(rr);
     }
 }
 

@@ -47,6 +47,7 @@ namespace Microsoft::Console::Render
         virtual const TextBuffer& GetTextBuffer() const noexcept = 0;
         virtual const FontInfo& GetFontInfo() const noexcept = 0;
         virtual std::vector<Microsoft::Console::Types::Viewport> GetSelectionRects() noexcept = 0;
+        virtual std::vector<Microsoft::Console::Types::Viewport> GetSearchSelectionRects() noexcept = 0;
         virtual void LockConsole() noexcept = 0;
         virtual void UnlockConsole() noexcept = 0;
 

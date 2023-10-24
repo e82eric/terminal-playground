@@ -86,6 +86,11 @@ constexpr HRESULT vec2_narrow(U x, U y, vec2<T>& out) noexcept
 {
     for (const auto& rect : rectangles)
     {
+        const auto y = gsl::narrow_cast<u16>(clamp<til::CoordType>(rect.top, 0, _p.s->viewportCellCount.y));
+
+        auto& row = *_p.rows[y];
+        row.selections.clear();
+
         // BeginPaint() protects against invalid out of bounds numbers.
         // TODO: rect can contain invalid out of bounds coordinates when the selection is being
         // dragged outside of the viewport (and the window begins scrolling automatically).

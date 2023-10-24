@@ -497,7 +497,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
 
     void TermControl::_VimMode(bool enabled, winrt::Windows::System::VirtualKey key)
     {
-        _core.ToggleMarkMode2();
+        //_core.ToggleMarkMode2();
         _core.TryMarkModeKeybinding((int16_t)key, _GetPressedModifierKeys());
         UNREFERENCED_PARAMETER(enabled);
     }
