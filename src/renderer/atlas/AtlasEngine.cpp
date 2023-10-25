@@ -431,13 +431,12 @@ try
         {
             auto& row = *_p.rows[y];
 
-            auto it = std::find_if(row.selections.begin(), row.selections.end(), [&from](const SelectionN& selection) {
+            auto it = std::find_if(row.searchSelections.begin(), row.searchSelections.end(), [&from](const SelectionN& selection) {
                 return selection.from == from;
             });
 
-            if (it != row.selections.end())
+            if (it != row.searchSelections.end())
             {
-                // Update the existing selection if the new "to" value is greater
                 if (to > it->to)
                 {
                     it->to = to;
@@ -445,9 +444,8 @@ try
             }
             else
             {
-                // Add a new selection since it doesn't exist
                 auto s = SelectionN{ from, to };
-                row.selections.emplace_back(s);
+                row.searchSelections.emplace_back(s);
             }
 
             _p.dirtyRectInPx.left = std::min(_p.dirtyRectInPx.left, from * _p.s->font->cellSize.x);

@@ -125,7 +125,9 @@ bool Search::SelectCurrent() const
         const auto& textBuffer = _renderData->GetTextBuffer();
         const auto selStart = textBuffer.BufferToScreenPosition(s->start);
         const auto selEnd = textBuffer.BufferToScreenPosition(s->end);
-        
+
+        _renderData->SelectNewRegion(selStart, selEnd);
+
         for (const auto& r : _results)
         {
             const auto rbStart = textBuffer.BufferToScreenPosition(r.start);
@@ -139,14 +141,11 @@ bool Search::SelectCurrent() const
 
             toSelect.emplace_back(re);
         }
-
-        _renderData->SelectNewRegion(selStart, selEnd);
-        _renderData->SelectNewRegions(toSelect);
+        
+        _renderData->SelectSearchRegions(toSelect);
 
         return true;
     }
-
-    _renderData->SelectNewRegions(toSelect);
 
     return false;
 }

@@ -377,7 +377,7 @@ namespace Microsoft::Console::Render::Atlas
     {
         u32 backgroundColor = 0;
         u32 selectionColor = 0x7fffffff;
-        u32 selectionColor2 = 0x7fff0000;
+        u32 searchSelectionColor = 0x5fff0000;
         std::wstring customPixelShaderPath;
         bool useRetroTerminalEffect = false;
     };
@@ -453,7 +453,7 @@ namespace Microsoft::Console::Render::Atlas
             selectionTo = 0;
             dirtyTop = y * cellHeight;
             dirtyBottom = dirtyTop + cellHeight;
-            selections.clear();
+            searchSelections.clear();
         }
 
         std::vector<FontMapping> mappings;
@@ -465,7 +465,7 @@ namespace Microsoft::Console::Render::Atlas
         LineRendition lineRendition = LineRendition::SingleWidth;
         u16 selectionFrom = 0;
         u16 selectionTo = 0;
-        std::vector<SelectionN> selections;
+        std::vector<SelectionN> searchSelections;
         til::CoordType dirtyTop = 0;
         til::CoordType dirtyBottom = 0;
     };

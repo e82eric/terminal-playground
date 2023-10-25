@@ -382,7 +382,7 @@ void Renderer::TriggerSelection()
         }
 
         _previousSelection = std::move(rects);
-        _previousSearchSelection = std::move(rects);
+        _previousSearchSelection = std::move(searchSelections);
 
         NotifyPaintFrame();
     }

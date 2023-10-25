@@ -71,6 +71,7 @@ std::vector<til::inclusive_rect> Terminal::_GetSearchSelectionRects() const noex
 {
     std::vector<til::inclusive_rect> result;
 
+    //This should probably be releated to if there are search selections
     if (!IsSelectionActive())
     {
         return result;
@@ -79,7 +80,7 @@ std::vector<til::inclusive_rect> Terminal::_GetSearchSelectionRects() const noex
     try
     {
         std::vector<til::inclusive_rect> result;
-        for (const auto& selection : _selections)
+        for (const auto& selection : _searchSelections)
         {
             auto start = til::point{ selection.left, selection.top };
             auto end = til::point{ selection.right, selection.top };
@@ -858,6 +859,7 @@ void Terminal::_MoveByBuffer(SelectionDirection direction, til::point& pos) noex
 void Terminal::ClearSelection()
 {
     _assertLocked();
+    _searchSelections.clear();
     _selection = std::nullopt;
     _selectionMode = SelectionInteractionMode::None;
     _selectionIsTargetingUrl = false;

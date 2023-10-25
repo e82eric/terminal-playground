@@ -206,40 +206,12 @@ void Terminal::SelectNewRegion(const til::point coordStart, const til::point coo
     SetSelectionEnd(realCoordEnd, SelectionExpansion::Char);
 }
 
-void Terminal::SelectNewRegions(std::vector<til::inclusive_rect> source)
+void Terminal::SelectSearchRegions(std::vector<til::inclusive_rect> source)
 {
-    _selections.clear();
+    //WEIRD
+    _searchSelections.clear();
     for (auto& r : source)
     {
-#pragma warning(push)
-#pragma warning(disable : 26496) // cpp core checks wants these const, but they're decremented below.
-        //auto realCoordStart = r.left;
-        //auto realCoordEnd = r.right;
-#pragma warning(pop)
-
-        auto notifyScrollChange = false;
-        if (r.top < _VisibleStartIndex())
-        {
-            // recalculate the scrollOffset
-            _scrollOffset = ViewStartIndex() - r.top;
-            notifyScrollChange = true;
-        }
-        else if (r.top > _VisibleEndIndex())
-        {
-            // recalculate the scrollOffset, note that if the found text is
-            // beneath the current visible viewport, it may be within the
-            // current mutableViewport and the scrollOffset will be smaller
-            // than 0
-            _scrollOffset = std::max(0, ViewStartIndex() - r.top);
-            notifyScrollChange = true;
-        }
-
-        if (notifyScrollChange)
-        {
-            _activeBuffer().TriggerScroll();
-            _NotifyScrollEvent();
-        }
-
         r.top -= _VisibleStartIndex();
         r.bottom -= _VisibleStartIndex();
 
@@ -248,8 +220,7 @@ void Terminal::SelectNewRegions(std::vector<til::inclusive_rect> source)
 
         auto rr = til::inclusive_rect{ rps.x, rps.y, rpe.x, rpe.y };
 
-
-        _selections.emplace_back(rr);
+        _searchSelections.emplace_back(rr);
     }
 }
 

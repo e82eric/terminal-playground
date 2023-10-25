@@ -237,6 +237,7 @@ void BackendD3D::Render(RenderingPayload& p)
     _drawBackground(p);
     _drawCursorBackground(p);
     _drawText(p);
+    _drawSearchSelections(p);
     _drawSelection(p);
 #if ATLAS_DEBUG_SHOW_DIRTY
     _debugShowDirty(p);
@@ -2066,37 +2067,44 @@ size_t BackendD3D::_drawCursorForegroundSlowPath(const CursorRect& c, size_t off
     return addedInstances;
 }
 
+void BackendD3D::_drawSearchSelections(const RenderingPayload& p)
+{
+    u16 y = 0;
+
+    for (const auto& row : p.rows)
+    {
+        if (!row->searchSelections.empty())
+        {
+            for (auto s : row->searchSelections)
+            {
+                if (s.from != row->selectionFrom)
+                {
+                    _appendQuad() = {
+                        .shadingType = ShadingType::Selection,
+                        .position = {
+                            p.s->font->cellSize.x * s.from,
+                            p.s->font->cellSize.y * y,
+                        },
+                        .size = {
+                            static_cast<u16>(p.s->font->cellSize.x * (s.to - s.from)),
+                            p.s->font->cellSize.y,
+                        },
+                        .color = p.s->misc->searchSelectionColor,
+                    };
+                }
+            }
+        }
+
+        y++;
+    }
+}
+
 void BackendD3D::_drawSelection(const RenderingPayload& p)
 {
     u16 y = 0;
     u16 lastFrom = 0;
     u16 lastTo = 0;
 
-    for (const auto& row : p.rows)
-    {
-        if (!row->selections.empty())
-        {
-            for (auto s : row->selections)
-            {
-                _appendQuad() = {
-                    .shadingType = ShadingType::Selection,
-                    .position = {
-                        p.s->font->cellSize.x * s.from,
-                        p.s->font->cellSize.y * y,
-                    },
-                    .size = {
-                        static_cast<u16>(p.s->font->cellSize.x * (s.to - s.from)),
-                        p.s->font->cellSize.y,
-                    },
-                    .color = p.s->misc->selectionColor,
-                };
-            }
-        }
-
-        y++;
-    }
-
-    y = 0;
     for (const auto& row : p.rows)
     {
         if (row->selectionTo > row->selectionFrom)
@@ -2119,7 +2127,7 @@ void BackendD3D::_drawSelection(const RenderingPayload& p)
                             static_cast<u16>(p.s->font->cellSize.x * (row->selectionTo - row->selectionFrom)),
                             p.s->font->cellSize.y,
                         },
-                        .color = p.s->misc->selectionColor2,
+                        .color = p.s->misc->selectionColor,
                     };
                     lastFrom = row->selectionFrom;
                     lastTo = row->selectionTo;
